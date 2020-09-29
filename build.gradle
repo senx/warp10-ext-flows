@@ -1,0 +1,278 @@
+//
+// Copyright 2020  SenX S.A.S.
+//
+// Use of this software is governed by the Business Source License
+// included in the file licenses/BSL.txt.
+//
+// As of the Change Date specified in that file, in accordance with
+// the Business Source License, use of this software will be governed
+// by the Apache License, Version 2.0, included in the file
+// licenses/APL.txt.
+//
+
+plugins {
+  id 'java'
+  id 'com.github.johnrengelman.shadow' version '4.0.3'
+  id 'eclipse'
+  id 'idea'
+  id 'antlr'
+  id 'signing'
+  id 'maven-publish'
+  id 'com.jfrog.bintray' version '1.8.1'
+}
+
+// ------------------------------------------------------------------
+//                    AUTO RELEASE MANAGEMENT
+// Gets the version name from the latest Git tag
+// if no commit occurs -> the name of the tag likes 0.0.1
+// if commit occurs -> 0.0.1-12-aabb1122 (number of commits + version number)
+// ------------------------------------------------------------------
+def getVersionName(String revision) {
+  String newRevision = revision
+
+  if (null == System.getProperty("nogit") && !revision.endsWith('SNAPSHOT')) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+      commandLine 'git', 'describe', '--tags', '--always'
+      standardOutput = stdout
+    }
+    newRevision = stdout.toString().trim()
+  }
+  return newRevision
+}
+
+//
+// Configure bintray elements below.
+//
+// Also add the following definitions in your gradle.properties
+//
+// bintrayUser = The user to use for uploading to bintay
+// bintrayUserOrg = The organization to use on bintray
+// bintrayApiKey = The bintray API key
+//
+
+project.ext.bintrayRepo = 'maven'
+project.ext.bintrayVcsUrl = 'https://github.com/senx/warp10-ext-flows'
+project.ext.bintrayLicenses = [ 'BSL-1.1' ]
+
+//
+// GnuPG configuration for signing module
+// @see https://docs.gradle.org/current/userguide/signing_plugin.html
+//
+
+//project.ext.'signing.gnupg.keyName' = 'hhhhhhhh'
+
+
+project.ext.group = 'io.warp10'
+project.ext.name = 'warp10-ext-flows'
+project.ext.uberjar = null != System.getProperty('uberjar')
+project.ext.version = getVersionName('0.0.0') + (project.ext.uberjar ? '-uberjar' : '')
+
+version project.ext.version
+
+wrapper {
+  distributionType = Wrapper.DistributionType.ALL
+}
+
+//
+// Repositories for the project dependencies
+//
+
+repositories {
+  jcenter()
+  
+  maven {
+    url 'https://dl.bintray.com/senx/maven'
+  }
+
+  maven {
+    url 'https://dl.bintray.com/hbs/maven'
+  }
+}
+
+configurations {
+  provided
+}
+
+//
+// Dependencies of the project
+// Dependencies declared in the 'provided' configuration will not be added to the über jar
+//
+
+dependencies {
+  provided 'io.warp10:warpscript:2.7.0'
+
+  //
+  // Insert your dependencies here
+  //
+  //compile group: 'GROUP', name: 'NAME', version: 'VERSION'
+
+  antlr 'org.antlr:antlr4:4.8'
+  testCompile'io.warp10:warpscript:+'
+  testImplementation 'junit:junit:4.12'
+}
+
+test {
+  useJUnit()
+}
+
+sourceSets {
+  main {
+    compileClasspath = compileClasspath + configurations.provided
+  }
+}
+
+eclipse.classpath.plusConfigurations += [configurations.provided]  // Eclipse users only
+
+// for IntelliJ users
+idea {
+  module {
+    scopes.PROVIDED.plus += [configurations.provided]
+  }
+}
+
+jar {
+  from('src/main/warpscript') {
+    //
+    // Only consider macros which are in our namespace
+    //
+    include project.ext.group + '/' + project.ext.name + '/*.mc2'
+    include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-flows.conf'
+  }
+}
+
+shadowJar {
+  classifier = ''
+
+  manifest {
+   attributes('WarpFleet-Description': 'FLoWS WarpScript Extension')
+   attributes('WarpFleet-Group': project.ext.group)
+   attributes('WarpFleet-Artifact': project.ext.name)
+   attributes('WarpFleet-Version': project.ext.version)
+  }
+
+  from('src/main/warpscript') {
+    //
+    // Only consider macros which are in our namespace
+    //
+    include project.ext.group + '/' + project.ext.name + '/*.mc2'
+    include project.ext.group + '/' + project.ext.name + '/**/*.mc2'
+  }
+  from('.') {
+    include 'README.md'
+    include 'io.warp10-warp10-ext-flows.conf'
+  }
+}
+
+shadowJar.dependsOn(test)
+
+//
+// Maven related config
+//
+
+// Task for building the sources jar
+task sourcesJar(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allJava
+}
+
+javadoc {
+  source = sourceSets.main.allJava
+  classpath = configurations.compile
+}
+
+task javadocJar(type: Jar) {
+  classifier = 'javadoc'
+}
+
+javadocJar.dependsOn(javadoc)
+
+publishing {
+  publications {
+    //
+    // Publication for the standard jar
+    //
+
+    stdjar(MavenPublication) {
+      groupId project.ext.group
+      artifactId project.ext.name
+      version project.ext.version
+
+      // We publish the result of the 'jar' task and the sources jar
+      from components.java 
+      artifact sourcesJar
+      artifact javadocJar
+    }
+
+    //
+    // Publication for the über jar containing all dependencies
+    //
+
+    uberjar(MavenPublication) {
+      groupId project.ext.group
+      artifactId project.ext.name
+      version project.ext.version
+
+      // Publish the über jar and the sources
+      artifact sourcesJar
+      artifact shadowJar
+    }
+  }
+}
+
+bintray {
+  dryRun = false
+
+  user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+  key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+
+  publications = project.ext.uberjar ? [ 'uberjar' ] : ['stdjar' ]
+  publish = null != System.getProperty('publish')
+
+  pkg {
+
+    repo = project.ext.bintrayRepo
+    name = project.ext.name
+
+    if (project.hasProperty('bintrayUserOrg') || null != System.getenv('BINTRAY_USERORG')) {
+      userOrg = project.hasProperty('bintrayUserOrg') ? project.property('bintrayUserOrg') : System.getenv('BINTRAY_USERORG')
+    }
+
+    vcsUrl = project.ext.bintrayVcsUrl
+    licenses = project.ext.bintrayLicenses
+
+    version {
+      version = version
+      released = new Date()
+    }
+  }
+}
+
+
+generateGrammarSource {
+  arguments += [ '-package', 'io.warp10.ext.flows.antlr' ]
+  doLast {
+    copy {
+      from 'build/generated-src/antlr/main/'
+      include '*.*'
+      into 'build/generated-src/antlr/main/io/warp10/ext/flows/antlr'
+    }
+    project.delete fileTree('build/generated-src/antlr/main').include('*.*')
+  }
+}
+
+//
+// Artifact Signing
+//
+
+signing {
+  if (null == System.getProperty("nosign")) {
+    useGpgCmd()
+    sign publishing.publications.uberjar
+    sign publishing.publications.stdjar
+  }
+}

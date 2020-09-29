@@ -1,0 +1,15 @@
+{
+  "type": "ext",
+  "group": "io.warp10",
+  "artifact": "warp10-ext-flows",
+  "version": "0.0.0",
+  "description": "FLoWS WarpScript Extension",
+  "author": "SenX",
+  "email": "contact@senx.io",
+  "license": "BSL-1.1",
+  "git": "https://github.com/senx/warp10-ext-flows",
+  "repoUrl": "https://dl.bintray.com/senx/maven",
+  "tags": [
+    "FLoWS",
+  ]
+}

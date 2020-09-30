@@ -34,186 +34,190 @@ The `FLOWS->` generates WarpScript code performing the same operations as the in
   'FLOWS->' EVAL
 %>
 // Unit tests
-<'
-  //
-  // This is a test suite for FLoWS
-  //
+'2.7.1' MINREV
+'io.warp10.ext.flows.FLoWSWarpScriptExtension' EXTLOADED AND
+<%
+  <'
+    //
+    // This is a test suite for FLoWS
+    //
 
-  L0 = 1234
-  L1 = -1234
-  L2 = 0xfedcba9876543210
-  L3 = 0x0123456789ABCDEF
+    L0 = 1234
+    L1 = -1234
+    L2 = 0xfedcba9876543210
+    L3 = 0x0123456789ABCDEF
 
-  D0 = 3.14
-  D1 = -3.14
-  D2 = 3.14E1
-  D3 = -3.14E1
-  D4 = 3.14E-1
-  D5 = -3.14E-1
-  D6 = NaN
-  D7 = +Infinity
-  D8 = -Infinity
+    D0 = 3.14
+    D1 = -3.14
+    D2 = 3.14E1
+    D3 = -3.14E1
+    D4 = 3.14E-1
+    D5 = -3.14E-1
+    D6 = NaN
+    D7 = +Infinity
+    D8 = -Infinity
 
-  B0 = true
-  B1 = false
+    B0 = true
+    B1 = false
 
-  S0 = 'Hello FLoWS'
-  S1 = "Hello FLoWS"
-  S2 = 'Hello
-FLoWS'
-  S3 = "Hello
-FLoWS"
-  S4 = '%C3%A9'
+    S0 = 'Hello FLoWS'
+    S1 = "Hello FLoWS"
+    S2 = 'Hello
+  FLoWS'
+    S3 = "Hello
+  FLoWS"
+    S4 = '%C3%A9'
 
-  LI0 = [ 0, 1, 2 ]
-  LI1 = [1,
-  2, 3]
-  LI2 = [0]
-  LI2[0] = 'xx';
+    LI0 = [ 0, 1, 2 ]
+    LI1 = [1,
+    2, 3]
+    LI2 = [0]
+    LI2[0] = 'xx';
 
-  LI3 = ->LIST(1,2,2)
-  
-  (l0,l1,l2) = LIST->(LI3)
+    LI3 = ->LIST(1,2,2)
+    
+    (l0,l1,l2) = LIST->(LI3)
 
-  M0 = { 1:2, 3:4 }
-  M1 = { 'a':'b',
-  'c':'d'
-  }
-  M2 = {}
-  M2['x'] = 'y'
-  M2[LI2[0]] = 'yy'
+    M0 = { 1:2, 3:4 }
+    M1 = { 'a':'b',
+    'c':'d'
+    }
+    M2 = {}
+    M2['x'] = 'y'
+    M2[LI2[0]] = 'yy'
 
-  M3 = {}
-  M3[LI2[LI0[0]]] = 'zz'
+    M3 = {}
+    M3[LI2[LI0[0]]] = 'zz'
 
-  MA0 = () -> {
-    return 42
-  }
+    MA0 = () -> {
+      return 42
+    }
 
-  MA1 = (a) -> {
-    return 42 + a
-  }
+    MA1 = (a) -> {
+      return 42 + a
+    }
 
-  MA2 = () => {
-    return 42,43
-  }
+    MA2 = () => {
+      return 42,43
+    }
 
-  FC1 = PI()
+    FC1 = PI()
 
-  FC2 = NOOP(1)
+    FC2 = NOOP(1)
 
-  (FC3.1,FC3.2) = NOOP(1,2)
+    (FC3.1,FC3.2) = NOOP(1,2)
 
-  FC4 = NOOP(PI())
+    FC4 = NOOP(PI())
 
-  FC5 = NOOP(@MA0())
+    FC5 = NOOP(@MA0())
 
-  FC6 = NOOP(@MA1(1))
-'>
-FLOWS-> EVAL EVAL
+    FC6 = NOOP(@MA1(1))
+  '>
+  'FLOWS->' EVAL EVAL EVAL
 
-$L0  1234 == ASSERT
-$L1 -1234 == ASSERT
-$L2 0xfedcba9876543210 == ASSERT
-$L3 0x0123456789ABCDEF == ASSERT
+  $L0  1234 == ASSERT
+  $L1 -1234 == ASSERT
+  $L2 0xfedcba9876543210 == ASSERT
+  $L3 0x0123456789ABCDEF == ASSERT
 
-$D0  3.14 == ASSERT
-$D1 -3.14 == ASSERT
-$D2  31.4 == ASSERT
-$D3 -31.4 == ASSERT
-$D4 0.314 == ASSERT
-$D5 -0.314 == ASSERT
-$D6 ISNaN ASSERT
-$D7 Infinity == ASSERT
-$D8 -Infinity == ASSERT
+  $D0  3.14 == ASSERT
+  $D1 -3.14 == ASSERT
+  $D2  31.4 == ASSERT
+  $D3 -31.4 == ASSERT
+  $D4 0.314 == ASSERT
+  $D5 -0.314 == ASSERT
+  $D6 ISNaN ASSERT
+  $D7 Infinity == ASSERT
+  $D8 -Infinity == ASSERT
 
-$B0 ASSERT
-$B1 NOT ASSERT
+  $B0 ASSERT
+  $B1 NOT ASSERT
 
-$S0 'Hello FLoWS' == ASSERT
-$S1 'Hello FLoWS' == ASSERT
-$S2 'Hello%0AFLoWS' == ASSERT
-$S3 'Hello%0AFLoWS' == ASSERT
-$S4 '%C3%A9' == ASSERT
+  $S0 'Hello FLoWS' == ASSERT
+  $S1 'Hello FLoWS' == ASSERT
+  $S2 'Hello%0AFLoWS' == ASSERT
+  $S3 'Hello%0AFLoWS' == ASSERT
+  $S4 '%C3%A9' == ASSERT
 
-$LI0 TYPEOF 'LIST' == ASSERT
-$LI0 LIST->
-3 == ASSERT
-2 == ASSERT
-1 == ASSERT
-0 == ASSERT
+  $LI0 TYPEOF 'LIST' == ASSERT
+  $LI0 LIST->
+  3 == ASSERT
+  2 == ASSERT
+  1 == ASSERT
+  0 == ASSERT
 
-$LI1 TYPEOF 'LIST' == ASSERT
-$LI1 LIST->
-3 == ASSERT
-3 == ASSERT
-2 == ASSERT
-1 == ASSERT
+  $LI1 TYPEOF 'LIST' == ASSERT
+  $LI1 LIST->
+  3 == ASSERT
+  3 == ASSERT
+  2 == ASSERT
+  1 == ASSERT
 
-$LI2 TYPEOF 'LIST' == ASSERT
-$LI2 LIST->
-1 == ASSERT
-'xx' == ASSERT
+  $LI2 TYPEOF 'LIST' == ASSERT
+  $LI2 LIST->
+  1 == ASSERT
+  'xx' == ASSERT
 
-$LI3 TYPEOF 'LIST' == ASSERT
-$LI3 LIST->
-2 == ASSERT
-2 == ASSERT
-1 == ASSERT
+  $LI3 TYPEOF 'LIST' == ASSERT
+  $LI3 LIST->
+  2 == ASSERT
+  2 == ASSERT
+  1 == ASSERT
 
-$l0 1 == ASSERT
-$l1 2 == ASSERT
-$l2 2 == ASSERT
+  $l0 1 == ASSERT
+  $l1 2 == ASSERT
+  $l2 2 == ASSERT
 
-$M0 TYPEOF 'MAP' == ASSERT
-$M0 MAP->
-4 == ASSERT
-4 == ASSERT
-3 == ASSERT
-2 == ASSERT
-1 == ASSERT
+  $M0 TYPEOF 'MAP' == ASSERT
+  $M0 MAP->
+  4 == ASSERT
+  4 == ASSERT
+  3 == ASSERT
+  2 == ASSERT
+  1 == ASSERT
 
-$M1 TYPEOF 'MAP' == ASSERT
-$M1 MAP->
-4 == ASSERT
-'d' == ASSERT
-'c' == ASSERT
-'b' == ASSERT
-'a' == ASSERT
+  $M1 TYPEOF 'MAP' == ASSERT
+  $M1 MAP->
+  4 == ASSERT
+  'd' == ASSERT
+  'c' == ASSERT
+  'b' == ASSERT
+  'a' == ASSERT
 
-$M2 TYPEOF 'MAP' == ASSERT
-$M2 MAP->
-4 == ASSERT
-'yy' == ASSERT
-'xx' == ASSERT
-'y' == ASSERT
-'x' == ASSERT
+  $M2 TYPEOF 'MAP' == ASSERT
+  $M2 MAP->
+  4 == ASSERT
+  'yy' == ASSERT
+  'xx' == ASSERT
+  'y' == ASSERT
+  'x' == ASSERT
 
-$M3 TYPEOF 'MAP' == ASSERT
-$M3 MAP->
-2 == ASSERT
-'zz' == ASSERT
-'xx' == ASSERT
+  $M3 TYPEOF 'MAP' == ASSERT
+  $M3 MAP->
+  2 == ASSERT
+  'zz' == ASSERT
+  'xx' == ASSERT
 
-@MA0
-42 == ASSERT
+  @MA0
+  42 == ASSERT
 
-1 @MA1
-43 == ASSERT
+  1 @MA1
+  43 == ASSERT
 
-@MA2
-43 == ASSERT
-42 == ASSERT
+  @MA2
+  43 == ASSERT
+  42 == ASSERT
 
-$FC1 PI == ASSERT
+  $FC1 PI == ASSERT
 
-$FC2 1 == ASSERT
+  $FC2 1 == ASSERT
 
-$FC3.1 1 == ASSERT
-$FC3.2 2 == ASSERT
+  $FC3.1 1 == ASSERT
+  $FC3.2 2 == ASSERT
 
-$FC4 PI == ASSERT
+  $FC4 PI == ASSERT
 
-$FC5 42 == ASSERT
+  $FC5 42 == ASSERT
 
-$FC6 43 == ASSERT
+  $FC6 43 == ASSERT
+%> IFT

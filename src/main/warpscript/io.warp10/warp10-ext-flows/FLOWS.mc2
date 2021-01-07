@@ -34,6 +34,7 @@ Execution of the FLoWS code is performed within the calling WarpScript environme
   !$.info INFO
   'FLOWS' EVAL
 %>
+'macro' STORE
 // Unit tests
 '2.7.1' MINREV
 'io.warp10.ext.flows.FLoWSWarpScriptExtension' EXTLOADED AND
@@ -222,3 +223,4 @@ FLoWS"
 
   $FC6 43 == ASSERT
 %> IFT
+$macro

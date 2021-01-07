@@ -33,6 +33,7 @@ The `FLOWS->` generates WarpScript code performing the same operations as the in
   !$.info INFO
   'FLOWS->' EVAL
 %>
+'macro' STORE
 // Unit tests
 '2.7.1' MINREV
 'io.warp10.ext.flows.FLoWSWarpScriptExtension' EXTLOADED AND
@@ -221,3 +222,4 @@ FLoWS"
 
   $FC6 43 == ASSERT
 %> IFT
+$macro

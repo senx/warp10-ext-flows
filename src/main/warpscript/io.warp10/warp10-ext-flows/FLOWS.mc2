@@ -64,9 +64,9 @@ Execution of the FLoWS code is performed within the calling WarpScript environme
     S0 = 'Hello FLoWS'
     S1 = "Hello FLoWS"
     S2 = 'Hello
-  FLoWS'
+FLoWS'
     S3 = "Hello
-  FLoWS"
+FLoWS"
     S4 = '%C3%A9'
 
     LI0 = [ 0, 1, 2 ]

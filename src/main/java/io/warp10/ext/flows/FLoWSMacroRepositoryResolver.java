@@ -59,6 +59,11 @@ public class FLoWSMacroRepositoryResolver extends MacroResolver {
   public static final String REPOSITORY_TTL = "flows.repository.ttl";
 
   /**
+   * Maximum TTL value that can be set for a macro, defaults to MAXLONG / 4
+   */
+  public static final String REPOSITORY_TTL_HARD = "flows.repository.ttl.hard";
+
+  /**
    * TTL to use for failed macros
    */
   public static final String REPOSITORY_TTL_FAILED = "flows.repository.ttl.failed";
@@ -84,6 +89,11 @@ public class FLoWSMacroRepositoryResolver extends MacroResolver {
    * Default TTL for loaded macros
    */
   private static long ttl = DEFAULT_MACRO_TTL;
+
+  /**
+   * Maximum value for TTL set via MACROTTL - We use max long divided by 4 so the probability of overflowing is low...
+   */
+  private static long hardTTL = Long.MAX_VALUE >>> 2;
 
   /**
    * Default TTL for failed macros
@@ -140,6 +150,7 @@ public class FLoWSMacroRepositoryResolver extends MacroResolver {
     directory = dir;
 
     ttl = Long.parseLong(WarpConfig.getProperty(REPOSITORY_TTL, Long.toString(DEFAULT_MACRO_TTL)));
+    hardTTL = Long.parseLong(WarpConfig.getProperty(REPOSITORY_TTL_HARD, Long.toString(hardTTL)));
     failedTtl = Long.parseLong(WarpConfig.getProperty(REPOSITORY_TTL_FAILED, Long.toString(DEFAULT_FAILED_MACRO_TTL)));
   }
 
@@ -309,8 +320,12 @@ public class FLoWSMacroRepositoryResolver extends MacroResolver {
       // Set expiration if ondemand is set and a ttl was specified
 
       try {
-        if (null != stack.getAttribute(WarpScriptStack.ATTRIBUTE_MACRO_TTL)) {
-          macro.setExpiry(Math.addExact(System.currentTimeMillis(), (long) stack.getAttribute(WarpScriptStack.ATTRIBUTE_MACRO_TTL)));
+        if (stack.getAttribute(WarpScriptStack.ATTRIBUTE_MACRO_TTL) instanceof Long) {
+          long adjusted = ((Long) stack.getAttribute(WarpScriptStack.ATTRIBUTE_MACRO_TTL)).longValue();
+          if (adjusted > hardTTL) {
+            adjusted = hardTTL;
+          }
+          macro.setExpiry(Math.addExact(System.currentTimeMillis(), adjusted));
         } else {
           macro.setExpiry(Math.addExact(System.currentTimeMillis(), ttl));
         }

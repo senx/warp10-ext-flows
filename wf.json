@@ -8,7 +8,7 @@
   "email": "contact@senx.io",
   "license": "BSL-1.1",
   "git": "https://github.com/senx/warp10-ext-flows",
-  "repoUrl": "https://dl.bintray.com/senx/maven",
+  "repoUrl": "https://repo.maven.apache.org/maven2",
   "tags": [
     "FLoWS"
   ]

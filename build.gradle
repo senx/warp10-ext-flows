@@ -12,7 +12,6 @@
 
 plugins {
   id 'com.github.johnrengelman.shadow' version '7.0.0'
-  id 'net.nemerosa.versioning' version '2.14.0'
   id 'io.codearte.nexus-staging' version '0.22.0'
   id 'java'
   id 'java-library'
@@ -25,9 +24,8 @@ plugins {
 
 project.group = 'io.warp10'
 project.description = 'FLoWS WarpScript Extension'
+project.version = getVersionFromGit()
 
-// If the current tag is set, then it's a new release. Don't add build number
-project.version = versioning.info.lastTag + ((versioning.info.tag != null) ? '' : '-' + versioning.info.build)
 //
 // Repositories for the project dependencies
 //
@@ -262,5 +260,20 @@ generateGrammarSource {
       into 'build/generated-src/antlr/main/io/warp10/ext/flows/antlr'
     }
     project.delete fileTree('build/generated-src/antlr/main').include('*.*')
+  }
+}
+
+def getVersionFromGit() {
+  def nogit = System.getProperty("nogit")
+  if (null != nogit) {
+    // Override version with the property value. To remove the version altogether use '-Dnogit' without value.
+    return nogit
+  } else {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+      commandLine 'git', 'describe', '--tags', '--always'
+      standardOutput = stdout
+    }
+    return stdout.toString().trim()
   }
 }
